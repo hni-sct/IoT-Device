@@ -1,0 +1,70 @@
+//
+// AMPLIFIER Module VerilogA Source Code
+// 
+// Copyright (C) 2021, Saed Abughannam
+// Heinz Nixdorf Institut/Paderborn University, Paderborn, Germany
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this file and associated documentation files,
+// to deal the file without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the file, and to permit persons to whom the
+// file is furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the file.
+// 
+// THE FILE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE FILE OR THE USE OR OTHER
+// DEALINGS IN THE FILE.
+//
+
+`include "constants.vams"
+`include "disciplines.vams"
+
+
+module AMPLIFIER(inp,out,vdd,vss);
+
+ input inp;
+ input vdd;
+ input vss; 
+ output out;
+ 
+ electrical inp;
+ electrical vdd;
+ electrical vss;
+ electrical out;
+ electrical N;
+
+ parameter real Gain=10; // DC gain (V/V)
+ real Vio=0; // input offset (V)
+ parameter real GBW=500e9; // Gain-Bandwidth product (Hz)
+ real Rdc=300; // DC output resistance (ohms)
+ real Rac=100; // AC & Sat output resistance (ohms)
+
+ real Gm, Rres, Ccap, Vnom; // internal variables
+
+
+ analog begin
+
+ @(initial_step) begin // constants computed at startup
+ Rres = Rdc-Rac; // inner resistor value
+ Gm = Gain/Rres; // input transconductance
+ Ccap = 1 / (`M_TWO_PI*GBW/Gm); // capacitor to get specifed GBW
+ end
+
+// Contributions of current for each branch in the topology diagram:
+
+ I(N,vss) <+ -Gm*V(inp); // transconductance from input
+ I(N,vss) <+ (V(N,vss)-V(vdd,vss)/2)/Rres; // resistor equation: I=V/R
+ I(N,vss) <+ ddt(Ccap*V(N,vss)); // capacitor equation: I=d(CV)/dT
+ I(N,out) <+ V(N,out) / Rac; // series resistance on output
+
+ end
+endmodule
+
+

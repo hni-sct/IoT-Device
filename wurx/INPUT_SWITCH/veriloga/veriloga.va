@@ -1,0 +1,72 @@
+//
+// INPUT_SWITCH Module VerilogA Source Code
+// 
+// Copyright (C) 2021, Saed Abughannam
+// Heinz Nixdorf Institut/Paderborn University, Paderborn, Germany
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this file and associated documentation files,
+// to deal the file without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the file, and to permit persons to whom the
+// file is furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the file.
+// 
+// THE FILE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE FILE OR THE USE OR OTHER
+// DEALINGS IN THE FILE.
+//
+
+`include "constants.vams"
+`include "disciplines.vams"
+
+module INPUT_SWITCH(in, ppm1, ppm2, out1, out2);
+
+input in, ppm1, ppm2; 
+voltage in , ppm1, ppm2;	// input ports
+
+output out1, out2;
+voltage out1, out2; //output port
+
+parameter real vth = 0.6;	// threshold voltage at trigger input (V)
+parameter integer dir = +1 from [-1:+1] exclude 0;
+
+real state1;
+real state2;
+
+analog begin
+
+ @(initial_step) begin
+
+ state1 = V(in);
+ state2 = 0;
+ end
+
+ @(cross(V(ppm1) - vth)) begin
+ state2 = V(in);
+ state1 = 0;
+end
+ @(cross(V(ppm2) - vth)) begin
+ state1 = V(in);
+ state2 = 0;
+end 
+
+
+
+ V(out1) <+  transition(state1, 0, 0); 
+ V(out2) <+  transition(state2, 0, 0); 
+
+ $bound_step(0.1/2440e6);
+end
+endmodule
+
+
+
+
+

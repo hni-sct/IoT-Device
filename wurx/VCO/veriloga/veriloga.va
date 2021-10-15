@@ -1,0 +1,78 @@
+//
+// VCO Module VerilogA Source Code
+// 
+// Copyright (C) 2021, Saed Abughannam
+// Heinz Nixdorf Institut/Paderborn University, Paderborn, Germany
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this file and associated documentation files,
+// to deal the file without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the file, and to permit persons to whom the
+// file is furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the file.
+// 
+// THE FILE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE FILE OR THE USE OR OTHER
+// DEALINGS IN THE FILE.
+//
+// Version 1a, 1 June 04
+//
+// Olaf Zinke
+//
+// Downloaded from The Designer's Guide Community (www.designers-guide.org).
+// Post any questions on www.designers-guide.org/Forum.
+// Taken from "The Designer's Guide to Verilog-AMS" by Kundert & Zinke.
+// Appendix A, Listing 8.
+
+`include "constants.vams"
+`include "disciplines.vams"
+
+
+module VCO(out, in);
+
+input in; 
+voltage in;			
+output out;
+voltage out;	
+		
+real vmin=0;			
+real vmax=1.2;	
+real fmin=2e6;		// minimum output frequency
+real fmax=2.4e6;   	// maximum output frequency
+real vl=0;			// low output voltage level
+real vh=1.2;		    // high output voltage level
+
+real freq, phase;
+integer n;
+
+analog begin
+    // compute the freq from the input voltage
+    freq = (V(in) - vmin)*(fmax - fmin) / (vmax - vmin) + fmin;
+
+    // bound the frequency (this is optional)
+    if (freq > fmax) freq = fmax;
+    if (freq < fmin) freq = fmin;
+
+    // bound the time step to assure no cycles are skipped
+    $bound_step(0.6/freq);
+
+    // phase is the integral of the freq modulo 2p
+    phase = 2*`M_PI*idtmod(freq, 0.0, 1.0, -0.5);
+
+    // identify the point where switching occurs
+    @(cross(phase + `M_PI/2, +1, 1u/fmax) or cross(phase - `M_PI/2, +1, 1u/fmax))
+	n = (phase >= -`M_PI/2) && (phase < `M_PI/2);
+
+    // generate the output
+    V(out) <+ transition(n ? vh : vl, 0, 0.01/fmax);
+    $bound_step(0.1/2M);
+end
+endmodule
+

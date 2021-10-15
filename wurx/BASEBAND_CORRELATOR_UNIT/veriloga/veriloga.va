@@ -1,0 +1,136 @@
+//
+// BASEBAND_CORRELATOR_UNIT Module VerilogA Source Code
+// 
+// Copyright (C) 2021, Saed Abughannam
+// Heinz Nixdorf Institut/Paderborn University, Paderborn, Germany
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this file and associated documentation files,
+// to deal the file without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the file, and to permit persons to whom the
+// file is furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the file.
+// 
+// THE FILE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE FILE OR THE USE OR OTHER
+// DEALINGS IN THE FILE.
+//
+
+
+`include "constants.vams"
+`include "disciplines.vams"
+
+module BASEBAND_CORRELATOR_UNIT(IN, CLK0, CLK1, CLK2, CLK3, CLK4, CLK5, CLK6, CLK7,CLK8,CLK9, OUT);
+
+input IN, CLK0, CLK1, CLK2, CLK3, CLK4, CLK5, CLK6, CLK7,CLK8,CLK9;
+electrical IN, CLK0, CLK1, CLK2, CLK3, CLK4, CLK5, CLK6, CLK7, CLK8,CLK9;
+
+output OUT;
+electrical OUT;
+
+parameter real td = 0 from [0:inf);	// delay from sampling to output (s)
+parameter real tt = 0 from [0:inf);	// transition time of output signals (s)
+parameter real vth = 0.5;	// threshold voltage at trigger input (V)
+parameter integer dir = +1 from [-1:+1] exclude 0;
+		                                         	// if dir=+1, rising clock edge triggers flip flop 
+		                                         	// if dir=-1, falling clock edge triggers flip flop 
+
+real save;
+real factor = 0;
+real period = 0.1n;
+
+analog begin
+	// Sample the input
+
+    if (V(CLK0) >= vth)begin
+    factor = 1; 
+    	@(timer(0, period) or initial_step) begin
+	    save = factor * V(IN);
+	    $discontinuity(0);
+	end   
+    end
+
+   if (V(CLK1) >= vth)begin
+    factor = 1; 
+    	@(timer(0, period) or initial_step) begin
+	    save = factor * V(IN);
+	    $discontinuity(0);
+	end   
+    end
+
+if (V(CLK2) >= vth)begin
+    factor = 1; 
+    	@(timer(0, period) or initial_step) begin
+	    save = factor * V(IN);
+	    $discontinuity(0);
+	end   
+    end
+
+   if (V(CLK3) >= vth)begin
+    factor = 1; 
+    	@(timer(0, period) or initial_step) begin
+	    save = factor * V(IN);
+	    $discontinuity(0);
+	end   
+    end
+
+if (V(CLK4) >= vth)begin
+    factor = 1; 
+    	@(timer(0, period) or initial_step) begin
+	    save = factor * V(IN);
+	    $discontinuity(0);
+	end   
+    end
+
+   if (V(CLK5) >= vth)begin
+    factor = 1; 
+    	@(timer(0, period) or initial_step) begin
+	    save = factor * V(IN);
+	    $discontinuity(0);
+	end   
+    end
+
+if (V(CLK6) >= vth)begin
+    factor = 1; 
+    	@(timer(0, period) or initial_step) begin
+	    save = factor * V(IN);
+	    $discontinuity(0);
+	end   
+    end
+
+   if (V(CLK7) >= vth)begin
+    factor = 1; 
+    	@(timer(0, period) or initial_step) begin
+	    save = factor * V(IN);
+	    $discontinuity(0);
+	end   
+    end
+      if (V(CLK8) >= vth)begin
+    factor = 1; 
+    	@(timer(0, period) or initial_step) begin
+	    save = factor * V(IN);
+	    $discontinuity(0);
+	end   
+    end
+   if (V(CLK9) >= vth)begin
+    factor = 1; 
+    	@(timer(0, period) or initial_step) begin
+	    save = factor * V(IN);
+	    $discontinuity(0);
+	end   
+    end
+
+
+
+	// Produce the output
+	V(OUT) <+ save;
+    $bound_step(0.1/2450e6);
+    end
+endmodule

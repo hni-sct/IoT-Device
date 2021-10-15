@@ -1,0 +1,63 @@
+//
+// NODE_ID Module VerilogA Source Code
+// 
+// Copyright (C) 2021, Saed Abughannam
+// Heinz Nixdorf Institut/Paderborn University, Paderborn, Germany
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this file and associated documentation files,
+// to deal the file without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the file, and to permit persons to whom the
+// file is furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the file.
+// 
+// THE FILE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE FILE OR THE USE OR OTHER
+// DEALINGS IN THE FILE.
+//
+
+
+`include "constants.vams"
+`include "disciplines.vams"
+
+module NODE_ID (nodeID0, nodeID1, nodeID2, nodeID3, nodeID4, nodeID5, nodeID6, nodeID7, nodeID8, nodeID9);
+
+output   nodeID0, nodeID1, nodeID2, nodeID3, nodeID4, nodeID5, nodeID6, nodeID7, nodeID8, nodeID9;
+electrical   nodeID0, nodeID1, nodeID2, nodeID3, nodeID4, nodeID5, nodeID6, nodeID7, nodeID8, nodeID9;
+
+parameter real Node_ID0 = 0;
+parameter real Node_ID1 = 1.2;
+parameter real Node_ID2 = 1.2;
+parameter real Node_ID3 = 1.2;
+parameter real Node_ID4 = 0;
+parameter real Node_ID5 = 1.2;
+parameter real Node_ID6 = 1.2;
+parameter real Node_ID7 = 0;
+parameter real Node_ID8 = 0;
+parameter real Node_ID9 = 1.2;
+
+
+
+analog begin
+
+V(nodeID0)<+   Node_ID0 ;
+V(nodeID1)<+   Node_ID1 ;
+V(nodeID2)<+   Node_ID2 ;
+V(nodeID3)<+   Node_ID3 ;
+V(nodeID4)<+   Node_ID4 ;
+V(nodeID5)<+   Node_ID5 ;
+V(nodeID6)<+   Node_ID6 ;
+V(nodeID7)<+   Node_ID7 ;
+V(nodeID8)<+   Node_ID8 ;
+V(nodeID9)<+   Node_ID9 ;
+
+end
+
+endmodule

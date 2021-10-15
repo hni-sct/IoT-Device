@@ -1,0 +1,68 @@
+//
+// AND2x1 Module VerilogA Source Code
+// 
+// Copyright (C) 2021, Saed Abughannam
+// Heinz Nixdorf Institut/Paderborn University, Paderborn, Germany
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this file and associated documentation files,
+// to deal the file without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the file, and to permit persons to whom the
+// file is furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the file.
+// 
+// THE FILE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE FILE OR THE USE OR OTHER
+// DEALINGS IN THE FILE.
+//
+// Version 1a, 24 November 2006
+//
+// Ken Kundert
+//
+// Downloaded from The Designer's Guide (www.designers-guide.org).
+// Post any questions to www.designers-guide.org/Forum
+
+
+`include "constants.vams"
+`include "disciplines.vams"
+
+
+module AND2x1(in1, in2, out);
+
+electrical in1, in2, out ;
+
+real digThresh = 0.6,
+                digOutLow = 0.0,
+                digOutHigh = 1.2,
+                trise=10n,
+                tfall=10n ;
+
+real dig1, dig2, logicState ;
+
+ analog begin 
+   
+    // Detect in1 threshold
+     @(cross(V(in1)-digThresh, 0, 1n))
+        if (V(in1)>digThresh)
+            dig1 = 1.2 ;
+        else
+            dig1 = 0 ;
+    // Detect in2 threshold
+     @(cross(V(in2)-digThresh, 0, 1n))
+        if (V(in2)>digThresh)
+           dig2 = 1.2 ;
+        else
+           dig2 = 0 ;
+ 
+        logicState = dig1 && dig2 ? digOutHigh : digOutLow;
+
+        V(out) <+ transition(logicState , 0.0, trise, tfall);
+ end
+endmodule

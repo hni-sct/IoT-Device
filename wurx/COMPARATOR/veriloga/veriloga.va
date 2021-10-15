@@ -1,0 +1,98 @@
+//
+// COMPARATOR Module VerilogA Source Code
+// 
+// Copyright (C) 2021, Saed Abughannam
+// Heinz Nixdorf Institut/Paderborn University, Paderborn, Germany
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this file and associated documentation files,
+// to deal the file without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the file, and to permit persons to whom the
+// file is furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the file.
+// 
+// THE FILE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE FILE OR THE USE OR OTHER
+// DEALINGS IN THE FILE.
+//
+
+
+`include "constants.vams"
+`include "disciplines.vams"
+
+module COMPARATOR(IN0, IN1, IN2, IN3, IN4, IN5, IN6, IN7, IN8, IN9,  IP0, IP1, IP2, IP3, IP4, IP5, IP6, IP7, IP8, IP9, OUT);
+
+
+input IN0, IN1, IN2, IN3, IN4, IN5, IN6, IN7, IN8, IN9,  IP0, IP1, IP2, IP3, IP4, IP5, IP6, IP7, IP8, IP9;
+electrical IN0, IN1, IN2, IN3, IN4, IN5, IN6, IN7, IN8, IN9,  IP0, IP1, IP2, IP3, IP4, IP5, IP6, IP7, IP8, IP9;
+
+output OUT;
+electrical OUT;
+
+real O0, O1, O2, O3, O4, O5, O6, O7, O8, O9;
+real O;
+
+ analog begin 
+   
+if (V(IN0) == V(IP0))begin
+       O0 = 1.0;    
+end
+
+   
+if (V(IN1) == V(IP1))begin
+       O1 = 1.0;    
+end
+
+   
+if (V(IN2) == V(IP2))begin
+       O2 = 1.0;    
+end
+
+   
+if (V(IN3) == V(IP3))begin
+       O3 = 1.0;    
+end
+
+   
+if (V(IN4) == V(IP4))begin
+       O4 = 1.0;    
+end
+
+if (V(IN5) == V(IP5))begin
+       O5 = 1.0;    
+end
+
+   
+if (V(IN6) == V(IP6))begin
+       O6 = 1.0;    
+end
+
+   
+if (V(IN7) == V(IP7))begin
+       O7 = 1.0;    
+end
+
+   
+if (V(IN8) == V(IP8))begin
+       O8 = 1.0;    
+end
+
+   
+if (V(IN9) == V(IP9))begin
+       O9 = 1.0;    
+end
+
+
+O = O9 * O8 * O7 * O6 * O5 * O4 * O3 * O2 * O1 * O0;
+ V(OUT) <+O;
+
+
+ end
+endmodule

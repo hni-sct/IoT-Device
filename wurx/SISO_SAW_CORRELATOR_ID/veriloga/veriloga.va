@@ -1,0 +1,189 @@
+//
+// SISO_SAW_CORRELATOR_ID Module VerilogA Source Code
+// 
+// Copyright (C) 2021, Saed Abughannam
+// Heinz Nixdorf Institut/Paderborn University, Paderborn, Germany
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this file and associated documentation files,
+// to deal the file without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the file, and to permit persons to whom the
+// file is furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the file.
+// 
+// THE FILE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE FILE OR THE USE OR OTHER
+// DEALINGS IN THE FILE.
+//
+
+`include "constants.vams"
+`include "disciplines.vams"
+
+module SISO_SAW_CORRELATOR_ID(out);
+
+output out;
+electrical out;
+
+//**************************************************
+// S-Parameters file variables
+real col1; // time
+real col2; // input signal
+real col3; // impulse response
+real col4; // correlation output
+real col5; // ignore
+
+integer file1;
+integer retval;
+real period; 
+integer counter;
+//**************************************************
+
+
+//**************************************************
+// Link budget calculation parameters
+// To calculate the amplitude of the received signal
+real fo = 2450000000;
+real Prx;
+real PrxIn;
+real PrxLinear;
+real factor;
+real TxPower_dBm = 20;
+real TxAntennaGain_dBi = 0;
+real RxAntennaGain_dBi = 0;
+parameter real Distance = 1;
+
+//**************************************************
+
+
+
+real out1; 
+real out2;
+real NodeID[0:19];
+
+parameter real SAW_Gain = 0.7; // Amplitude Gain, less than 1 due to high losses 
+
+parameter real Node_ID0 = 0;
+parameter real Node_ID1 = 1;
+parameter real Node_ID2 = 1;
+parameter real Node_ID3 = 1;
+parameter real Node_ID4 = 0;
+parameter real Node_ID5 = 1;
+parameter real Node_ID6 = 1;
+parameter real Node_ID7 = 0;
+parameter real Node_ID8 = 0;
+parameter real Node_ID9 = 1;
+
+
+integer i;
+
+analog begin
+
+   //***********************************************************************************************************
+   //  Initial Step
+   //***********************************************************************************************************
+   @(initial_step) begin
+
+    // Open S-parameters file 
+    file1=$fopen("correl_3p1mV.t","r") ; 
+    period = 166.66e-12;
+    counter = 0;
+
+
+    // Assiggned WSN node ID
+    NodeID[0] =  Node_ID0;      // ID Bit 0
+    NodeID[1] = 1.0; 
+
+    NodeID[2] = Node_ID1;      // ID Bit 1
+    NodeID[3] = 1.0; 
+ 
+    NodeID[4] = Node_ID2;      // ID Bit 2
+    NodeID[5] = 1.0; 
+   
+    NodeID[6] = Node_ID3;      // ID Bit 3
+    NodeID[7] = 1.0; 
+
+    NodeID[8] = Node_ID4;      // ID Bit 4
+    NodeID[9] = 1.0; 
+
+    NodeID[10] = Node_ID5;     // ID Bit 5
+    NodeID[11] = 1.0; 
+
+    NodeID[12] = Node_ID6;     // ID Bit 6
+    NodeID[13] = 1.0; 
+
+    NodeID[14] = Node_ID7;     // ID Bit 7
+    NodeID[15] = 1.0; 
+
+    NodeID[16] =  Node_ID8;    // ID Bit 8
+    NodeID[17] = 1.0; 
+
+    NodeID[18] = Node_ID9;     // ID Bit 9
+    NodeID[19] = 1.0; 
+ 
+     
+    // Link Budget Calculation     
+    Prx = TxPower_dBm + TxAntennaGain_dBi + RxAntennaGain_dBi  - ( -27.55  + 20*log(2400) + 20*log(Distance));
+    PrxLinear  = pow(10,(Prx/10)); // power in mWatt
+    factor = sqrt(2) * sqrt((PrxLinear*50)/1000);
+
+    end
+    //**********************************************************************************************************
+
+
+   //***********************************************************************************************************
+   //  Initial Step
+   //***********************************************************************************************************
+   @(final_step) begin
+        $fclose(file1);
+      end 
+
+
+
+@(timer(0,period))begin
+  retval = $fscanf(file1,"%e %e %e %e %e", col1, col2, col3, col4, col5);
+  //$display("Helooo * %e  %e %e %e %e\n",col1,col2,col3,col4,col5);
+  out1 = col4;
+  counter =  counter + 1;
+
+ // $strobe("Counter =  %e" , counter);
+end
+
+
+if(NodeID[i] == 1.0)begin
+if (counter == 1201)
+   begin
+    file1=$fopen("correl_3p1mV.t","r") ; 
+    counter = 0;
+    i = i + 1;
+   end
+end
+ 
+if(NodeID[i] == 0.0)begin
+if (counter == 1501)
+   begin
+    file1=$fopen("correl_3p1mV.t","r") ; 
+    counter = 0;
+    i = i + 1;
+   end
+end
+
+if(i == 19 )begin
+ i = 0;
+end
+
+
+out2 = absdelay( +1 * factor * out1/(1.48143e-3) * SAW_Gain, 500n ) ;
+
+V(out)<+out2;
+
+$bound_step(0.1/2450e6);
+end 
+
+endmodule

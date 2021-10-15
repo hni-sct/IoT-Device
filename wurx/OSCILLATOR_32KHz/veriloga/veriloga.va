@@ -1,0 +1,61 @@
+//
+// Oscillator_23KHz Module VerilogA Source Code
+// 
+// Copyright (C) 2021, Saed Abughannam
+// Heinz Nixdorf Institut/Paderborn University, Paderborn, Germany
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this file and associated documentation files,
+// to deal the file without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the file, and to permit persons to whom the
+// file is furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the file.
+// 
+// THE FILE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE FILE OR THE USE OR OTHER
+// DEALINGS IN THE FILE.
+//
+
+
+`include "constants.vams"
+`include "disciplines.vams"
+
+module OSCILLATOR_32KHz(out);
+
+output out; 
+voltage out;			// output signal
+ 
+real vdd = 1.2;
+
+real freq= 32768 from (0:inf);         // output frequency, low-power crystal oscillator - SiTime or Micro Crystal (1 uw of power dissipation)
+
+real vh= 0.9 * vdd ;				    // high output voltage  90% of VDD (SiTime)
+real vl= 0.1 * vdd;			         // low output voltage   10% of VDD (Sitime)
+
+
+integer n;
+real next;
+
+analog begin
+    @(initial_step) begin
+
+	next = 0.5/freq + $abstime;
+    end
+    @(timer(next)) begin
+	n = !n;
+	next = next + 0.5/freq;
+    end
+    V(out) <+ transition(n ? vh : vl, 0);
+
+$bound_step(0.1/2M);
+end
+endmodule
+
+

@@ -1,0 +1,59 @@
+//
+// SAMPLE_AND_HOLD Module VerilogA Source Code
+// 
+// Copyright (C) 2021, Saed Abughannam
+// Heinz Nixdorf Institut/Paderborn University, Paderborn, Germany
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this file and associated documentation files,
+// to deal the file without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the file, and to permit persons to whom the
+// file is furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the file.
+// 
+// THE FILE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE FILE OR THE USE OR OTHER
+// DEALINGS IN THE FILE.
+//
+
+`include "constants.vams"
+`include "disciplines.vams"
+
+module SAMPLE_AND_HOLD(Pout, Pin, clk);
+
+input Pin; 
+voltage Pin;	// input port
+output Pout;
+voltage Pout;	// output port
+input clk; voltage clk;			// trigger
+
+parameter real td = 0 from [0:inf);	// delay from sampling to output (s)
+parameter real tt = 0 from [0:inf);	// transition time of output signals (s)
+parameter real vth = 0.6;	// threshold voltage at trigger input (V)
+parameter integer dir = +1 from [-1:+1] exclude 0;
+			// if dir=+1, rising clock edge triggers flip flop 
+			// if dir=-1, falling clock edge triggers flip flop 
+real save;
+
+analog begin
+    // Sample the input
+
+if(V(clk) >= vth)begin
+    //@(cross(V(clk) - vth, dir) or initial_step)
+	save = V(Pin);
+end
+    // Produce output with well-controlled transitions
+    V(Pout) <+ transition(save, td, tt);
+    $bound_step(0.1/2440e6);
+end
+endmodule
+
+
+
